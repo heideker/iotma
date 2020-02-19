@@ -1,0 +1,62 @@
+//JSON Setup structure:
+{
+    "id":"urn:ngsi-ld:TestNodeIOTMA",
+    "type":{"type":"text","value":"IoTMA"},
+    "host":{"type":"text","value":"http://imaiot.org:1026"},
+    "service":{"type":"text","value":"openiot"},
+    "servicepath":{"type":"text","value":"/"},
+    "entitypath":{"type":"text","value":""},
+    "publishintervall":{"type":"number","value":30},
+    "actionintervall":{"type":"number","value":30},
+    "heartbeatinterval":{"type":"number","value":30},
+    "heartbeatretry":{"type":"number","value":3},
+    "action":{"type":"text","value":"reboot"}, //send "reboot" and respond with OK
+    "timestamp":{"type":"number","value":0},
+    "entities":[
+        {
+            "host":{"type":"text","value":"http://imaiot.org:1026"},
+            "service":{"type":"text","value":"openiot"},
+            "servicepath":{"type":"text","value":"/"},
+            "entityid":{"type":"text","value":"urn:ngsi-ld:xyz88hdd"},
+            "entitypath":{"type":"text","value":""},
+            "processtype":{"type":"text","value":"docker"},
+            "processname":{"type":"text","value":"testedocker"},
+            "port":{"type":"number","value":22222},
+            "avaiability":{"type":"text","value":"testedocker"},
+            "startscript":{"type":"text","value":""},
+            "stopscript":{"type":"text","value":""},  
+            "action":{"type":"text","value":"OK"}, //send "restart" and respond with OK
+            "lastlog":{"type":"text","value":""}
+        },
+        {
+            "host":{"type":"text","value":"http://imaiot.org:1026"},
+            "service":{"type":"text","value":"openiot"},
+            "servicepath":{"type":"text","value":"/"},
+            "entityid":{"type":"text","value":"urn:ngsi-ld:yyg55272"},
+            "entitypath":{"type":"text","value":""},
+            "processtype":{"type":"text","value":"system"},
+            "processname":{"type":"text","value":"wsplug"},
+            "port":{"type":"number","value":22222},
+            "avaiability":{"type":"text","value":"testedocker"},
+            "startscript":{"type":"text","value":"./wsplug"},
+            "stopscript":{"type":"text","value":"killall wsplug"},  
+            "action":{"type":"text","value":"restart"},
+            "lastlog":{"type":"text","value":""}
+        }
+    ]
+}
+
+//JSON Publish structure:
+{
+    "id":"urn:ngsi-ld:xyz88hdd",
+    //...
+    //...
+    //...
+    "process":{"type":"text","value":"testdocker"},
+    "cpu":{"type":"number","value":15},
+    "memory":{"type":"number","value":1554388},
+    "status":{"type":"text","value":"alive"},
+    "timestamp":{"type":"number","value":1133344432}
+}
+
+

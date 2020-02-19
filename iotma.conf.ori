@@ -1,0 +1,52 @@
+#/**********************************************************
+#*                                                         *
+#*  IOTMA - IoT Mananger Agent                             *
+#*                                                         *
+#*  Author: Alexandre Heideker / Dener Ottoni              *
+#*  e-mail: alexandre.heideker@ufabc.edu.br                *
+#*  UFABC - 2020                                           *
+#*  Setup File                                             *
+#***********************************************************/
+#
+# lines started with # will be ignored
+#
+
+# debugMode = 1 to verbose mode on console
+debugMode = 1
+
+# Essential Setup
+OrionURL = http://imaiot.org:1026
+FiwareService = openiot
+FiwareServicepath = /
+NodeUUID = urn:ngsi-ld:TestNodeIOTMA
+CPUPathStat = /proc/stat
+CPUPathArch = /proc/cpuinfo
+NetworkPathStat = /proc/net
+SampplingTime = 5
+####################################
+
+#NetworkStat = 0
+#NodeName = TestNode
+#Latitude = 0
+#Longitude = 0
+
+
+
+# Orion Publisher intervall
+#OrionPublisherTime = 5
+#CPUStat = 1
+
+#Self actuation
+#WatchDogMode = 1
+#time without any remote contact to enter in alert-mode
+#WatchDogTime = 30
+#interval between retry in alert-mode
+#WatchDogAlertTime = 5
+#number of retries before reboot system.
+#WatchDogRetryCount = 3
+#script of heartbeat - return: 1=OK; 0 or otherwise = Bad! 
+#WatchDogHeartbeatScript = 
+#if WatchDogHeartbeatScript is omitted, you can use the Orion heartbeat capability
+#WatchDogHeartbeatOrionURL = http://imaiot.org:1026
+#Reboot command or script
+#WatchDogRebootCommand = reboot
