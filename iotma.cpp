@@ -54,6 +54,12 @@ Agent MFstats;
 IMAIoTVar Setup;
 
 int main(int argc, char *argv[]) {
+    //Default settings...
+    Setup.CPUPathStat = "/proc/stat";
+    Setup.CPUPathArch = "/proc/cpuinfo";
+    Setup.NetworkPathStat = "/proc/net";
+    Setup.SampplingTime = 5;
+    
     if (!readSetup(Setup)) return -1;
 
     if (argc>1) {
