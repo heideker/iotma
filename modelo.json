@@ -11,7 +11,7 @@
     "heartbeatinterval":{"type":"number","value":30},
     "heartbeatretry":{"type":"number","value":3},
     "action":{"type":"text","value":"reboot"}, //send "reboot" and respond with OK
-    "timestamp":{"type":"number","value":0},
+    "timestamp":"233232234222",
     "entities":[
         {
             "host":{"type":"text","value":"http://imaiot.org:1026"},
@@ -58,5 +58,7 @@
     "status":{"type":"text","value":"alive"},
     "timestamp":{"type":"number","value":1133344432}
 }
+
+
 
 

@@ -2,9 +2,9 @@
 *                                                         *
 *  IOTMA - IoT Mananger  Agent                            *
 *                                                         *
-*  Author: Alexandre Heideker                             *
+*  Author: Alexandre Heideker / Dener Otoni               *
 *  e-mail: alexandre.heideker@ufabc.edu.br                *
-*  UFABC - 2019                                           *
+*  UFABC - 2020                                           *
 *  statistic data structure class                         *
 ***********************************************************/
 
@@ -26,7 +26,37 @@ enum ProcessType {
     DOCKER
 };
 
+typedef struct
+{
+    int pid;
+    std::string Name;
+    float cpu;
+    long DataMem;
+    long VirtMem;
+} processData;
+
+typedef struct
+{
+    long UDPtxQueue;
+    long UDPrxQueue;
+    long TCPtxQueue;
+    long TCPrxQueue;
+    unsigned int TCPMaxWindowSize; //only TCP
+} networkData;
+
+typedef struct
+{
+    std::string Name;
+    long RxBytes;
+    long RxPackets;
+    long RxErrors;
+    long TxBytes;
+    long TxPackets;
+    long TxErrors;
+} networkAdapter;
+
 struct MonEntity{
+    bool exist;
     std::string host;
     std::string service;
     std::string servicepath;
@@ -56,16 +86,28 @@ class Agent{
         std::string setupService;
 
     public:
-        IMAIoTVar IMvar;
         std::string CPUPathStat;
         std::string NetworkPathStat;
         std::string CPUPathArch;
         bool debugMode;
-        std::string Host;
-        std::string Entity;
-        std::string ServicePath;
-        std::string Service;
-        unsigned int Timestamp; //timestamp
+        std::string host;
+        std::string entity;
+        std::string servicepath;
+        std::string service;
+        std::string entitypath;
+        int heartbeatinterval;
+        int heartbeatretry;
+        std::string action;
+        int publishintervall;
+        int actioninterval;
+        int samplinginterval;
+        int setupinterval;
+        unsigned int setuptimestamp;
+        float longitude;
+        float latitude;
+
+
+        unsigned int timestamp;
         long MemorySize;
         long MemoryAvailable;
         long cpuOldStats[10];
@@ -73,9 +115,6 @@ class Agent{
         int cpuLevel;
         std::string arch;
         networkData netData;
-        int publishinterval;
-        int actioninterval;
-        int sampleinterval;
         std::vector<networkAdapter> NetAdapters;
         std::vector<MonEntity> entities;
         
@@ -92,7 +131,6 @@ class Agent{
         bool newSetupEntity();
         Agent(string setupHost, std::string setupEntity, std::string setupServicePath, std::string setupService);
         Agent();
-        void getSetup();
         bool setupAgent(Json::Value & obj);
 };
 
@@ -102,99 +140,60 @@ Agent::Agent(string setupHost, std::string setupEntity,
     this->setupHost = setupHost;
     this->setupService = setupService;
     this->setupServicePath = setupServicePath;
-    getSetup();
 }
 Agent::Agent(){
 }
 
 bool Agent::setupAgent(Json::Value & obj) {
-    this->publishinterval = obj["publishinterval"].asInt();
-    this->actioninterval = obj["actioninterval"].asInt();
-    this->sampleinterval = obj["sampleinterval"].asInt();
+
+    this->entity = obj["id"].asString();
+    this->host = obj["host"]["value"].asString();
+    this->service = obj["service"]["value"].asString();
+    this->servicepath = obj["servicepath"]["value"].asString();
+    this->entitypath = obj["entitypath"]["value"].asString();
+    this->heartbeatinterval = obj["heartbeatinterval"]["value"].asInt();
+    this->heartbeatretry = obj["heartbeatretry"]["value"].asInt();
+    this->action = obj["action"]["value"].asString();
+    this->publishintervall = obj["publishintervall"]["value"].asInt();
+    this->actioninterval = obj["actioninterval"]["value"].asInt();
+    this->samplinginterval = obj["samplinginterval"].asInt();
+    this->setupinterval = obj["setupinterval"].asInt();
+    this->setuptimestamp = obj["setuptimestamp"].asInt();
     this->entities.clear();
-    Json::Reader reader;
-    Json::Value obj2 = obj["entities"]["value"];
-    
-    for( Json::Value::const_iterator itr = obj2.begin() ; itr != obj2.end() ; itr++ ) {
-        cout << itr.key() << endl;
-        
-    }
-    for (Json::Value::ArrayIndex i = 0; i != obj2.size(); i++) {
+    for (Json::Value::ArrayIndex i = 0; i != obj["entities"].size(); i++) {
         MonEntity MnE;
-        MnE.host = obj2[i]["host"].asString();
-        AQUI
-        MnE.entityid = obj2[i]["host"].asString();
-        MnE.servicepath = obj2[i]["servicepath"].asString();
-        MnE.service = obj2[i]["service"].asString();
-        MnE.processtype = (obj2[i]["processtype"].asString() == "" ? HARDWARE : (obj2[i]["processtype"].asString() == "docker" ? DOCKER : SYSTEM));
-        MnE.processname = obj2[i]["processname"].asString();
-        MnE.port = obj2[i]["port"].asUInt();
-        MnE.avaiability = obj2[i]["avaiability"].asString();
-        MnE.startscript = obj2[i]["startscript"].asString();
-        MnE.stopscript = obj2[i]["stopscript"].asString();
-        MnE.action = obj2[i]["action"].asString();
-        MnE.lastlog = obj2[i]["lastlog"].asString();
+        MnE.host = obj["entities"][i]["host"]["value"].asString();
+        MnE.entityid = obj["entities"][i]["entityid"]["value"].asString();
+        MnE.servicepath = obj["entities"][i]["servicepath"]["value"].asString();
+        MnE.service = obj["entities"][i]["service"]["value"].asString();
+        MnE.processtype = (obj["entities"][i]["processtype"]["value"].asString() == "" ? HARDWARE : (obj["entities"][i]["processtype"]["value"].asString() == "docker" ? DOCKER : SYSTEM));
+        MnE.processname = obj["entities"][i]["processname"]["value"].asString();
+        MnE.port = obj["entities"][i]["port"]["value"].asUInt();
+        MnE.avaiability = obj["entities"][i]["avaiability"]["value"].asString();
+        MnE.startscript = obj["entities"][i]["startscript"]["value"].asString();
+        MnE.stopscript = obj["entities"][i]["stopscript"]["value"].asString();
+        MnE.action = obj["entities"][i]["action"]["value"].asString();
+        MnE.lastlog = obj["entities"][i]["lastlog"]["value"].asString();
         MnE.Alive = false;
         MnE.Cpu = 0;
         MnE.Memory = 0;
+        MnE.exist = false;
+        this->entities.push_back (MnE);
     }
     return true;
 }
 
-void Agent::getSetup(){
-    //read the timestamp from setup entity. if is early than actual, refresh the setup...
-    //std::string txt = getRest(url, header, "");
-    //Json::Reader rd;
-    //Json::Value js; 
-    //rd.parse(txt, js);
-
-}
-
-
-bool Agent::newSetupEntity() {
-/*
-    //Create a new setup entity 
-    ostringstream json;
-    SEM_WAIT
-    json << "{\"id\":\"" << this->setupEntity << "\",\"type\":{\"type\":\"text\",\"value\":\"IoTMA\"}," <<
-            "\"host\":{\"type\":\"text\",\"value\":\"" << this->setupHost << "\"}," <<
-            "\"service\":{\"type\":\"text\",\"value\":\"" << this->setupService << "\"}," <<
-            "\"servicepath\":{\"type\":\"text\",\"value\":\"" << this->setupServicePath << "\"}," <<
-            "\"entitypath\":{\"type\":\"text\",\"value\":\"\"}," <<
-            "\"publishintervall\":{\"type\":\"number\",\"value\":" << this->publishInterval << "}," <<
-            "\"actionintervall\":{\"type\":\"number\",\"value\":" << this->actionInterval << "}," <<
-            "\"action\":{\"type\":\"text\",\"value\":\"\"}," <<
-            "\"timestamp\":\"" << std::time(0) << "\",\"entities\":[]}";
-    SEM_POST
-    ostringstream url;
-
-    url << this->setupHost << "/v2/entities?options=keyValues";
-    if (this->debugMode) cout << "URL:\t" << url.str() << endl;
-    if (this->debugMode) cout << "JSON:\t" << json.str() << endl;
-    struct curl_slist *chunk = NULL;
-    chunk = curl_slist_append(chunk, "Content-Type: application/json");
-    chunk = curl_slist_append(chunk, ("fiware-service: " +  this->setupService).c_str());
-    chunk = curl_slist_append(chunk, ("fiware-servicepath: " +  this->setupServicePath).c_str());
-
-    string retStr = getRestFiware(url.str(), chunk, json.str());
-    if (retStr.find("{\"error\":",0)) 
-        return false;
-*/
-    return true;
-}
-
-
-
 void Agent::Refresh(){
     //Refresh system data
-    this->Timestamp = std::time(0);
+    this->timestamp = std::time(0);
     struct sysinfo memInfo;
     sysinfo (&memInfo);
     this->MemorySize = memInfo.totalram;
     this->MemoryAvailable = memInfo.freeram;
     std::ifstream File;
     std::string line;
-    File.open (this->CPUPathStat);
+
+    File.open (this->CPUPathStat, std::fstream::in );
     if (File.is_open()) {
         std::string cpuId;
         File >> cpuId >> this->cpuStats[STAT_USER]
@@ -228,224 +227,59 @@ void Agent::Refresh(){
         }
         File.close();
     }
-    //reading network stats
-    networkData nd;
-    nd.TCPtxQueue = 0;
-    nd.TCPrxQueue = 0;
-    nd.TCPMaxWindowSize = 0;
-    std::string trash;
-    File.open (this->NetworkPathStat + "/tcp");
-    if (File.is_open()) {
-        //header
-        getline(File, line);
-        while (! File.eof()){
-            getline(File, line);
-            replaceAll(line, ":", " ");
-            std::stringstream ss(line);
-            unsigned long v = 0;
-            ss >> trash >> trash >> trash >> trash >> trash >> trash >> v;
-            nd.TCPtxQueue += v;
-            ss >> v;
-            nd.TCPrxQueue += v;
-            ss >> trash >> trash >> trash >> trash >> trash >> trash >> trash >> trash >> trash >> trash >> trash >> v;
-            if (v > nd.TCPMaxWindowSize) nd.TCPMaxWindowSize = v;
-        }
-        File.close();
-    }
-    File.open (this->NetworkPathStat + "/tcp6");
-    if (File.is_open()) {
-        //header
-        getline(File, line);
-        while (! File.eof()){
-            getline(File, line);
-            replaceAll(line, ":", " ");
-            std::stringstream ss(line);
-            long v = 0;
-            ss >> trash >> trash >> trash >> trash >> trash >> trash >> v;
-            nd.TCPtxQueue += v;
-            ss >> v;
-            nd.TCPrxQueue += v;
-            ss >> trash >> trash >> trash >> trash >> trash >> trash >> trash >> trash >> trash >> trash >> trash >> v;
-            if (v > nd.TCPMaxWindowSize) nd.TCPMaxWindowSize = v;
-        }
-        File.close();
-    }
-    File.open (this->NetworkPathStat + "/udp");
-    if (File.is_open()) {
-        //header
-        getline(File, line);
-        while (! File.eof()){
-            getline(File, line);
-            replaceAll(line, ":", " ");
-            std::stringstream ss(line);
-            long v = 0;
-            ss >> trash >> trash >> trash >> trash >> trash >> trash >> v;
-            nd.UDPtxQueue += v;
-            ss >> v;
-            nd.UDPrxQueue += v;
-        }
-        File.close();
-    }
-    File.open (this->NetworkPathStat + "/udp6");
-    if (File.is_open()) {
-        //header
-        getline(File, line);
-        while (! File.eof()){
-            getline(File, line);
-            replaceAll(line, ":", " ");
-            std::stringstream ss(line);
-            long v = 0;
-            ss >> trash >> trash >> trash >> trash >> trash >> trash >> v;
-            nd.UDPtxQueue += v;
-            ss >> v;
-            nd.UDPrxQueue += v;
-        }
-        File.close();
-    }
-    this->netData = nd;
-    //reading network adapters stats...
-    this->NetAdapters.clear();
-    File.open (this->NetworkPathStat + "/dev");
-    if (File.is_open()) {
-        //header
-        getline(File, line);
-        getline(File, line);
-        networkAdapter na;
-        while (! File.eof()){
-            getline(File, line);
-            replaceAll(line, ":", " ");
-            std::stringstream ss(line);
-            ss >> na.Name >> na.RxBytes >> na.RxPackets >> na.RxErrors;
-            ss >> trash >> trash >> trash >> trash >> trash;
-            ss >> na.TxBytes >> na.TxPackets >> na.TxErrors;
-            this->NetAdapters.push_back (na);
-        }
-        File.close();
-    }
-    this->netData = nd;
-    //reading architeture info...
-    File.open (this->CPUPathArch);
-    if (File.is_open()) {
-        while (! File.eof()){
-            getline(File, line);
-            if (line.substr(0, 10)=="model name"){
-                this->arch = trim(ReplaceForbidden(line.substr(line.find(":")+2, line.length()-1)));
-                break;
-            }
-        }
-        File.close();
-    }
+
     //reading processes stats...using ps shell command
     std::string stringOut;
     processData ps;
-    /*
-    this->Processes.clear();
-    for (auto p: this->IMvar.ProcessNames) {
-        stringOut = run("ps  --no-headers -C " + p + " -o pid,%cpu,rss,vsz");
+
+    struct dk {
+        std::string Name;
+        unsigned int cpu;
+        unsigned int m1;
+        unsigned int m2;
+    };
+    std::vector<dk> dks;
+    stringOut = run("docker stats --all --no-stream --format \"{{.Name}};{{.CPUPerc}};{{.MemUsage}}\"");
+    dk d;
+    if (stringOut.size()>0) {
+        if (debug) cout << "Docker Stats: " << stringOut << endl;
+        replaceAll(stringOut, " / ", ";");
+        replaceAll(stringOut, "MiB", "E06");
+        replaceAll(stringOut, "GiB", "E09");
+        replaceAll(stringOut, "B", "");
+        replaceAll(stringOut, "%", "");
+        replaceAll(stringOut, ";", " ");
         std::stringstream ss(stringOut);
-        while (ss >> ps.pid >> ps.cpu >> ps.DataMem >> ps.VirtMem){
-            ps.Name = ReplaceForbidden(p);
-            ps.DataMem *= 1000;
-            ps.VirtMem *= 1000;
-            if (this->debugMode) cout << ps.Name << "\t" << ps.cpu << "\t" << ps.DataMem << endl;
-            this->Processes.push_back (ps);
+        while (ss >> d.Name >> d.cpu >> d.m1 >> d.m2){
+            dks.push_back(d);
         }
     }
-    if (this->IMvar.DockerStat) {
-        this->Dockers.clear();
-        stringOut = run("docker stats --all --no-stream --format \"{{.Name}};{{.CPUPerc}};{{.MemUsage}}\"");
-        if (this->debugMode) cout << "Docker Stats: " << stringOut << endl;
-        if (stringOut.size()>0) {
-            replaceAll(stringOut, " / ", ";");
-            replaceAll(stringOut, "MiB", "E06");
-            replaceAll(stringOut, "GiB", "E09");
-            replaceAll(stringOut, "B", "");
-            replaceAll(stringOut, "%", "");
-            replaceAll(stringOut, ";", " ");
-            std::stringstream ss(stringOut);
-            float dm, n;
-            ps.pid=0;
-            ps.VirtMem=0;
-            while (ss >> ps.Name >> ps.cpu >> dm >> n){
-                ps.DataMem = (long) dm;
-                if (this->debugMode) cout << ps.Name << "\t" << ps.cpu << "\t" << ps.DataMem << endl;
-                if (this->IMvar.DockerNames.size()>0) {
-                    if (this->IMvar.DockerNames[0] == "*") {
-                        this->Dockers.push_back(ps);
-                    } else {
-                        for (auto d: this->IMvar.DockerNames) {
-                            if (d == ps.Name)
-                                this->Dockers.push_back (ps);
-                        }  
-                    }
+    for (auto &p: this->entities) {
+        unsigned int m1=0, m2=0;
+        unsigned int cpu=0;
+        p.Alive = false;
+        if (p.processtype == DOCKER) {
+            for (auto d: dks) {
+                if (d.Name == p.processname) {
+                    p.Memory = (unsigned int) (d.m2 - d.m1);
+                    p.Cpu = d.cpu;
+                    p.Alive = true;
+                    break;
                 }
             }
-        }   
+        } else if (p.processtype == SYSTEM) {
+            stringOut = run("ps  --no-headers -C " + p.processname + " -o pid,%cpu,rss,vsz");
+            std::stringstream ss(stringOut);
+            while (ss >> ps.pid >> cpu >> m1 >> m2){
+                p.Memory += (m1 + m2);
+                p.Cpu += cpu; 
+            }
+            p.Alive = true;
+        } else {
+            p.Alive = true;
+            p.Cpu = this->cpuLevel; 
+            p.Memory = this->MemorySize - this->MemoryAvailable;
+        }
+
     }
-    */
 }
-/*
-std::string MonData::getTxtStorage(){
-    return "Storage";
-}
-
-std::string MonData::getJsonNetworkStats(){
-    std::ostringstream s;
-    s << "{\"TCPrxQueue\":" << this->netData.TCPrxQueue 
-        << ", \"TCPtxQueue\":" << this->netData.TCPtxQueue 
-        << ", \"TCPMaxWindowSize\":" << this->netData.TCPMaxWindowSize 
-        << ", \"UDPrxQueue\":" << this->netData.TCPtxQueue 
-        << ", \"UDPtxQueue\":" << this->netData.TCPtxQueue << "}";
-    return s.str();
-}
-
-std::string MonData::getJsonNetworkAdapters(){
-    std::ostringstream s;
-    s << "[";
-    bool cy = false;
-    for (auto p: this->NetAdapters) {
-        if (cy) s << ",";
-        cy = true;
-        s << "{\"name\":\"" << p.Name << "\", \"rxBytes\":" << p.RxBytes 
-            << ", \"rxPackets\":" << p.RxPackets
-            << ", \"rxErrors\":" << p.RxErrors
-            << ", \"txBytes\":" << p.TxBytes 
-            << ", \"txPackets\":" << p.TxPackets
-            << ", \"txErrors\":" << p.TxErrors << "}";
-    }
-    s << "]";
-    return s.str();
-}
-std::string MonData::getTxtNetworkStats(){
-    return "Network";
-}
-std::string MonData::getTxtNetworkAdapters(){
-    return "Network";
-}
-std::string MonData::getJsonProcess(){
-    std::ostringstream s;
-    s << "[";
-    bool cy = false;
-    for (auto p: this->Processes) {
-        if (cy) s << ",";
-        cy = true;
-        s << "{\"type\":\"system\", \"pid\":" << p.pid << ", \"name\": \"" << p.Name
-            << "\", \"memory\": " << p.DataMem << ", \"cpu\":" << p.cpu << "}";
-    }
-    for (auto p: this->Dockers) {
-        if (cy) s << ",";
-        cy = true;
-        s << "{\"type\":\"docker\", \"pid\":" << p.pid << ", \"name\": \"" << p.Name
-            << "\", \"memory\": " << p.DataMem << ", \"cpu\":" << p.cpu << "}";
-    }
-    s << "]";
-    return s.str();
-}
-std::string MonData::getTxtProcess(){
-    return "Process";
-}
-*/
-
-
-
-

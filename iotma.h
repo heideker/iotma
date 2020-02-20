@@ -44,69 +44,27 @@ typedef struct
     std::string WatchDogRebootCommand;
 } IMAIoTVar;
 
-typedef struct
-{
-    int pid;
-    std::string Name;
-    float cpu;
-    long DataMem;
-    long VirtMem;
-} processData;
 
-typedef struct
+void dumpVar(Agent & IMvar)
 {
-    long UDPtxQueue;
-    long UDPrxQueue;
-    long TCPtxQueue;
-    long TCPrxQueue;
-    unsigned int TCPMaxWindowSize; //only TCP
-} networkData;
-
-typedef struct
-{
-    std::string Name;
-    long RxBytes;
-    long RxPackets;
-    long RxErrors;
-    long TxBytes;
-    long TxPackets;
-    long TxErrors;
-} networkAdapter;
-
-void dumpVar(IMAIoTVar & IMvar)
-{
-    cout << "NodeUUID:\t" << IMvar.NodeUUID << endl;
+    cout << "NodeUUID:\t" << IMvar.entity << endl;
     cout << "Longitude:\t" << IMvar.longitude << endl;
     cout << "Latitude:\t" << IMvar.latitude << endl;
     cout << "debugMode:\t" << IMvar.debugMode << endl;
-    cout << "OrionURL:\t" << IMvar.OrionURL << endl;
-    cout << "FiwareService:\t" << IMvar.FiwareService << endl;
-    cout << "FiwareServicepath:\t" << IMvar.FiwareServicepath << endl;
-    cout << "SampplingTime:\t" << IMvar.SampplingTime << endl;
-    cout << "PublishIntervall:\t" << IMvar.PublishIntervall << endl;
-    cout << "DockerStat:\t" << IMvar.DockerStat << endl;
-    cout << "CPUStat:\t" << IMvar.CPUStat << endl;
+    cout << "OrionURL:\t" << IMvar.host << endl;
+    cout << "FiwareService:\t" << IMvar.service << endl;
+    cout << "FiwareServicepath:\t" << IMvar.servicepath << endl;
+    cout << "SampplingTime:\t" << IMvar.samplinginterval << endl;
+    cout << "PublishIntervall:\t" << IMvar.publishintervall << endl;
     cout << "CPUPathStat:\t" << IMvar.CPUPathStat << endl;
     cout << "CPUPathArch:\t" << IMvar.CPUPathArch << endl;
-    cout << "NetworkStat:\t" << IMvar.NetworkStat << endl;
-    cout << "NetworkPathStat:\t" << IMvar.NetworkPathStat << endl;
-    cout << "DiskStat:\t" << IMvar.DiskStat << endl;
-    cout << "HeartBeatInterval:\t" << IMvar.HeartBeatInterval << endl;
-    cout << "HeartBeatRetry:\t" << IMvar.HeartBeatRetry << endl;
-
-
-    cout << "ProcessNames:\t";
-    for (auto i : IMvar.ProcessNames)
-        std::cout << i << ' ';
-    cout << endl;
-    cout << "DockerNames:\t";
-    for (auto i : IMvar.DockerNames)
-        std::cout << i << ' ';
-    cout << endl;
+    cout << "HeartBeatInterval:\t" << IMvar.heartbeatinterval << endl;
+    cout << "HeartBeatRetry:\t" << IMvar.heartbeatretry << endl;
 }
 
-bool parseVar(IMAIoTVar & IMvar, string token, string value)
+bool parseVar(Agent & IMvar, string token, string value)
 {
+    //cout << "Token:" << token << "\tValue:" << value << endl; 
     if (token == "debugMode")
     {
         if (value == "1")
@@ -117,19 +75,19 @@ bool parseVar(IMAIoTVar & IMvar, string token, string value)
     // Essential Setup 
     else if (token == "NodeUUID")
     {
-        IMvar.NodeUUID = value;
+        IMvar.entity = value;
     }
     else if (token == "OrionURL")
     {
-        IMvar.OrionURL = value;
+        IMvar.host = value;
     }
     else if (token == "FiwareService")
     {
-        IMvar.FiwareService = value;
+        IMvar.service = value;
     }
     else if (token == "FiwareServicepath")
     {
-        IMvar.FiwareServicepath = value;
+        IMvar.servicepath = value;
     }
     else if (token == "CPUPathStat")
     {
@@ -145,7 +103,7 @@ bool parseVar(IMAIoTVar & IMvar, string token, string value)
     }
     else if (token == "SampplingTime")
     {
-        IMvar.SampplingTime = stoi(value);
+        IMvar.samplinginterval = stoi(value);
     }
     // End of essential setup...
 
@@ -159,9 +117,10 @@ bool parseVar(IMAIoTVar & IMvar, string token, string value)
     }
     else if (token == "OrionPublisherTime")
     {
-        IMvar.OrionPublisherTime = stoi(value);
+        IMvar.publishintervall = stoi(value);
     }
 
+    /*
     else if (token == "ProcessNames")
     {
         IMvar.ProcessNames = splitString(trim(value), ' ');
@@ -177,6 +136,7 @@ bool parseVar(IMAIoTVar & IMvar, string token, string value)
         else
             IMvar.DiskStat = false;
     }
+    */
     else
     {
         cout << "Invalid argument: Token=" << token << "  Value=" << value << endl;
@@ -185,7 +145,7 @@ bool parseVar(IMAIoTVar & IMvar, string token, string value)
     return true;
 }
 
-bool readSetup(IMAIoTVar & IMvar)
+bool readSetup(Agent & IMvar)
 {
     bool error = false;
     ifstream File;
@@ -207,17 +167,11 @@ bool readSetup(IMAIoTVar & IMvar)
             }
         }
         File.close();
-        return !error;
     }
-    else
-    {
-        cout << "Parse error reading imaiot.conf\n"
-             << endl;
-        return false;
-    }
+    return !error;
 }
 
-bool readSetupFromCL(IMAIoTVar & IMvar, int argc, char *argv[])
+bool readSetupFromCL(Agent & IMvar, int argc, char *argv[])
 {
     int i;
     bool error = false;
@@ -251,5 +205,3 @@ bool readSetupFromCL(IMAIoTVar & IMvar, int argc, char *argv[])
         return true;
     }
 }
-
-

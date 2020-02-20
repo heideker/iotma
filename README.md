@@ -53,13 +53,15 @@ Key |	Description
 ---------|-------------
 debugMode = 0 | [bolean] Set the debug-mode of IoTMA with a verbose operation
 NodeUUID = urn:ngsi-ld:999 | [text] This key informs the unique identifier of the node in Orion. If this entity's Id not found the Orion, the IoTMA will create a new entity.
+OrionURL = http://url:1026 | The URL to Orion Context Broker where the configuration entity is hosted
+FiwareService = openiot | Fiware Service of configuration entity
+FiwareServicepath = / | Fiware Service Path of configuration entity
+NodeUUID = urn:ngsi-ld:NodeName | Configuration entity Id 
+CPUPathStat = /proc/stat (default) | Path to OS process statistics.
+CPUPathArch = /proc/cpuinfo (default) | Path to CPU Architecture information
+NetworkPathStat = /proc/net (default) | Path to Network adapter statistics
+SampplingTime = 5 (default) | Statistics's sampling interval
 
-OrionHost = http://hostname | [texto] URL (hostname ou endereço IP) para o context broker
-OrionPort = 1026 | [inteiro] Número da porta para o context broker
-OrionPublisherTime = 30 | [inteiro] Intervalo entre as publicações de métricas no context broker, em segundos
-CPUPathStat = /proc/stat | [texto] Caminho até o pseudo arquivo de CPU (de acordo com a versão do Linux do hospedeiro)
-CPUPathArch = /proc/cpuinfo | [texto] Caminho até o pseudo arquivo arquitetura (de acordo com a versão do Linux do hospedeiro)
-NetworkPathStat = /proc/net | [texto] Caminho até o pseudo arquivo rede (de acordo com a versão do Linux do hospedeiro)
 
 
 # Running the agent

@@ -1,8 +1,8 @@
 /**********************************************************
 *                                                         *
-*  IMAIoT - Infrastructure Monitoring Agent for IoT       *
+*  IOTMA - IoT Mananger  Agent                            *
 *                                                         *
-*  Author: Alexandre Heideker                             *
+*  Author: Alexandre Heideker / Dener Ottoni              *
 *  e-mail: alexandre.heideker@ufabc.edu.br                *
 *  UFABC - 2019                                           *
 *  Utility library                                        *
@@ -199,3 +199,5 @@ bool PrintJSONTree( const Json::Value &root, unsigned short depth /* = 0 */)
     }
     return true;
 }
+
+

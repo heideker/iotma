@@ -1,4 +1,4 @@
-#/**********************************************************
+#***********************************************************
 #*                                                         *
 #*  IOTMA - IoT Mananger Agent                             *
 #*                                                         *
@@ -6,7 +6,7 @@
 #*  e-mail: alexandre.heideker@ufabc.edu.br                *
 #*  UFABC - 2020                                           *
 #*  Setup File                                             *
-#***********************************************************/
+#***********************************************************
 #
 # lines started with # will be ignored
 #
@@ -15,13 +15,8 @@
 debugMode = 1
 
 # Essential Setup
-OrionURL = http://imaiot.org:1026
+OrionURL = http://177.104.61.60:1026
 FiwareService = openiot
 FiwareServicepath = /
-NodeUUID = urn:ngsi-ld:TestNodeIOTMA
-CPUPathStat = /proc/stat
-CPUPathArch = /proc/cpuinfo
-NetworkPathStat = /proc/net
-SampplingTime = 5
+NodeUUID = urn:ngsi-ld:TestNode
 ####################################
-
